@@ -12,22 +12,34 @@ import { Strategy as OAuth2Strategy } from 'passport-oauth2';
 import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter } from 'events';
 import crypto from 'node:crypto';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { PersistentMap } from '../db/PersistentMap.js';
 import { Logger } from '../utils/Logger.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const logger = new Logger('Auth');
 
 export class AuthenticationManager extends EventEmitter {
   constructor(options = {}) {
     super();
+    if (!options.jwtSecret && !process.env.JWT_SECRET) {
+      throw new Error('JWT secret must be provided via options or JWT_SECRET env variable');
+    }
+    if (!options.sessionSecret && !process.env.SESSION_SECRET) {
+      throw new Error('Session secret must be provided via options or SESSION_SECRET env variable');
+    }
+
     this.options = {
-      jwtSecret: options.jwtSecret || process.env.JWT_SECRET || this.generateSecureSecret(),
+      jwtSecret: options.jwtSecret || process.env.JWT_SECRET,
       jwtExpiresIn: options.jwtExpiresIn || '24h',
       refreshTokenExpiresIn: options.refreshTokenExpiresIn || '7d',
       bcryptRounds: options.bcryptRounds || 12,
       apiKeyLength: options.apiKeyLength || 32,
       maxLoginAttempts: options.maxLoginAttempts || 5,
       lockoutDuration: options.lockoutDuration || 15 * 60 * 1000, // 15 minutes
-      sessionSecret: options.sessionSecret || process.env.SESSION_SECRET || this.generateSecureSecret(),
+      sessionSecret: options.sessionSecret || process.env.SESSION_SECRET,
       oauth: {
         clientID: options.oauth?.clientID || process.env.OAUTH_CLIENT_ID,
         clientSecret: options.oauth?.clientSecret || process.env.OAUTH_CLIENT_SECRET,
@@ -37,13 +49,13 @@ export class AuthenticationManager extends EventEmitter {
         userProfileURL: options.oauth?.userProfileURL || 'https://example.com/api/user',
         scope: options.oauth?.scope || ['read', 'write']
       },
+      dataDir: options.dataDir || path.join(__dirname, '../../data'),
       ...options
     };
 
-    // In-memory stores (replace with database in production)
-    this.users = new Map();
-    this.apiKeys = new Map();
-    this.refreshTokens = new Map();
+    this.users = new PersistentMap(path.join(this.options.dataDir, 'users.json'));
+    this.apiKeys = new PersistentMap(path.join(this.options.dataDir, 'auth-api-keys.json'));
+    this.refreshTokens = new PersistentMap(path.join(this.options.dataDir, 'refresh-tokens.json'));
     this.blacklistedTokens = new Set();
     this.loginAttempts = new Map();
     this.sessions = new Map();
@@ -74,9 +86,16 @@ export class AuthenticationManager extends EventEmitter {
   /**
    * Initialize authentication system
    */
-  initialize() {
+  async initialize() {
+    await Promise.all([
+      this.users.load(),
+      this.apiKeys.load(),
+      this.refreshTokens.load()
+    ]);
     this.setupPassport();
-    this.createDefaultUsers();
+    if (process.env.NODE_ENV !== 'production') {
+      await this.createDefaultUsers();
+    }
     this.emit('initialized');
   }
 
@@ -171,35 +190,42 @@ export class AuthenticationManager extends EventEmitter {
    * Create default users for testing
    */
   async createDefaultUsers() {
-    // Admin user
-    await this.createUser({
-      username: 'admin',
-      password: 'admin123',
-      email: 'admin@llm-router.com',
-      name: 'Administrator',
-      role: 'admin',
-      verified: true
-    });
+    const adminHash = process.env.DEFAULT_ADMIN_PASSWORD_HASH;
+    const userHash = process.env.DEFAULT_USER_PASSWORD_HASH;
+    const apiHash = process.env.DEFAULT_API_PASSWORD_HASH;
 
-    // Regular user
-    await this.createUser({
-      username: 'user',
-      password: 'user123',
-      email: 'user@llm-router.com',
-      name: 'Regular User',
-      role: 'user',
-      verified: true
-    });
+    if (adminHash) {
+      await this.createUser({
+        username: 'admin',
+        passwordHash: adminHash,
+        email: 'admin@llm-router.com',
+        name: 'Administrator',
+        role: 'admin',
+        verified: true
+      });
+    }
 
-    // API user
-    await this.createUser({
-      username: 'api',
-      password: 'api123',
-      email: 'api@llm-router.com',
-      name: 'API User',
-      role: 'api',
-      verified: true
-    });
+    if (userHash) {
+      await this.createUser({
+        username: 'user',
+        passwordHash: userHash,
+        email: 'user@llm-router.com',
+        name: 'Regular User',
+        role: 'user',
+        verified: true
+      });
+    }
+
+    if (apiHash) {
+      await this.createUser({
+        username: 'api',
+        passwordHash: apiHash,
+        email: 'api@llm-router.com',
+        name: 'API User',
+        role: 'api',
+        verified: true
+      });
+    }
   }
 
   /**
@@ -208,7 +234,7 @@ export class AuthenticationManager extends EventEmitter {
   async createUser(userData) {
     try {
       const userId = uuidv4();
-      const hashedPassword = userData.password ? await bcrypt.hash(userData.password, this.options.bcryptRounds) : null;
+      const hashedPassword = userData.passwordHash || (userData.password ? await bcrypt.hash(userData.password, this.options.bcryptRounds) : null);
 
       const user = {
         id: userId,
@@ -398,6 +424,7 @@ export class AuthenticationManager extends EventEmitter {
       const decoded = jwt.decode(token);
       if (decoded && decoded.jti) {
         this.blacklistedTokens.add(decoded.jti);
+        this.refreshTokens.delete(decoded.jti);
         this.emit('tokenRevoked', { tokenId: decoded.jti, userId: decoded.sub });
       }
     } catch (error) {

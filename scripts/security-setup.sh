@@ -19,6 +19,7 @@ PROJECT_DIR="/home/mikecerqua/projects/LLM-Runner-Router"
 SERVICE_NAME="llm-router-saas"
 DOMAIN="${1:-llm-api.local}"  # Use provided domain or default
 PUBLIC_IP="178.156.181.117"
+BASE_URL="${BASE_URL:-http://localhost:3006}"
 
 echo -e "${YELLOW}📋 Configuration:${NC}"
 echo -e "  Project: $PROJECT_DIR"
@@ -343,7 +344,7 @@ pm2 save
 # Test localhost binding
 sleep 3
 if curl -s http://127.0.0.1:3006/api/health > /dev/null; then
-    echo "✅ Service running on localhost:3006"
+    echo "✅ Service running on ${BASE_URL}"
 else
     echo "❌ Service not responding on localhost"
     exit 1

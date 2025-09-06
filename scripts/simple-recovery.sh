@@ -55,9 +55,10 @@ check_pm2_status() {
 # Check API health
 check_api_health() {
     info "Checking API health..."
-    
+
     # Check health endpoint
-    if curl -s -f -o /dev/null http://localhost:3006/health; then
+    BASE_URL="${BASE_URL:-http://localhost:3006}"
+    if curl -s -f -o /dev/null "$BASE_URL/health"; then
         log "API health check passed"
         return 0
     else

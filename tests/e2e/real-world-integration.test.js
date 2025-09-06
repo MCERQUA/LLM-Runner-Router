@@ -15,7 +15,7 @@ describe('Real-World E2E Integration Tests', () => {
   let router;
   let database;
   let apiClient;
-  const baseURL = process.env.API_URL || 'http://localhost:3006';
+  const BASE_URL = process.env.BASE_URL || 'http://localhost:3006';
   
   beforeAll(async () => {
     // Initialize real components
@@ -38,7 +38,7 @@ describe('Real-World E2E Integration Tests', () => {
     
     // Setup API client
     apiClient = axios.create({
-      baseURL,
+      baseURL: BASE_URL,
       timeout: 30000,
       validateStatus: () => true // Don't throw on any status
     });

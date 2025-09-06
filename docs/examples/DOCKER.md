@@ -363,9 +363,8 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 COPY src/ ./src/
 
-# Install all dependencies and build
+# Install all dependencies
 RUN npm ci
-RUN npm run build
 
 # Production stage
 FROM node:18-alpine AS production
@@ -381,8 +380,7 @@ COPY package*.json ./
 # Install only production dependencies
 RUN npm ci --only=production && npm cache clean --force
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy application source from builder stage
 COPY --from=builder /app/src ./src
 
 # Create non-root user
@@ -431,7 +429,7 @@ COPY src/ ./src/
 COPY scripts/ ./scripts/
 
 RUN npm ci
-RUN npm run build
+RUN npm prune --production
 
 # Production stage
 FROM base AS production
@@ -439,7 +437,6 @@ FROM base AS production
 COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 
 RUN addgroup -g 1001 -S nodejs && \

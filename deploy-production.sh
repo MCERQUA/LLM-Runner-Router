@@ -10,6 +10,7 @@ export LOG_LEVEL=info
 export API_PORT=3006
 export DEFAULT_STRATEGY=balanced
 export MAX_MODELS=10
+BASE_URL="${BASE_URL:-http://localhost:3006}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -125,6 +126,6 @@ print_info "📡 Available Commands:"
 echo "  npm start                 - Start production server"
 echo "  npm run monitor          - Monitor with PM2"
 echo "  npm run logs             - View logs"
-echo "  curl localhost:3006/api/health - Health check"
+echo "  curl $BASE_URL/api/health - Health check"
 echo ""
 print_status "✅ Deployment ready!"

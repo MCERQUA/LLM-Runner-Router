@@ -1002,33 +1002,27 @@ export default {
 
 ```dockerfile
 # Optimized production Dockerfile
-FROM node:18-alpine AS base
+FROM node:20-alpine AS builder
 
-# Install production dependencies
-FROM base AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
-
-# Build stage
-FROM base AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
-RUN npm run build
+RUN npm prune --production
 
 # Production stage
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Add non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S llmrouter -u 1001
 
-# Copy production files
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+# Copy application source and dependencies
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/server.js ./
 COPY --from=builder /app/package*.json ./
 
 # Set proper ownership
@@ -1042,7 +1036,7 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 EXPOSE 3006
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "server.js"]
 ```
 
 This deployment guide provides comprehensive coverage of production deployment strategies. Continue to the [monitoring setup tutorial](../tutorials/monitoring-setup.md) for detailed observability configuration.

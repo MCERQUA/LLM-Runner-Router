@@ -42,7 +42,7 @@ data:
   ws-compression: "true"
   
   # Engine Configuration
-  preferred-engine: "node-native"
+  preferred-engine: "node"
   fallback-engines: "wasm,simple"
   enable-gpu-acceleration: "false"
 

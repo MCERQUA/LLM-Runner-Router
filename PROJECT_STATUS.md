@@ -35,7 +35,7 @@ The LLM Runner Router is a production-ready universal AI model orchestration sys
 ### Engines (6/6 - 100%)
 1. ✅ **WebGPUEngine** - GPU acceleration for browsers
 2. ✅ **WASMEngine** - Universal WebAssembly runtime
-3. ✅ **NodeNativeEngine** - Optimized Node.js execution
+3. ✅ **NodeEngine** - Optimized Node.js execution
 4. ✅ **WorkerEngine** - Web/Service Worker support
 5. ✅ **EdgeEngine** - Cloudflare Workers/Deno optimization
 6. ✅ **EngineSelector** - Automatic engine selection

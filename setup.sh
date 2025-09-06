@@ -9,6 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_FILE="$SCRIPT_DIR/setup.log"
 ERROR_LOG="$SCRIPT_DIR/setup-errors.log"
+BASE_URL="${BASE_URL:-http://localhost:3006}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -351,7 +352,8 @@ setup_monitoring() {
 #!/bin/bash
 # Health check script for LLM Router
 
-HEALTH_URL="http://localhost:3006/api/health"
+BASE_URL="${BASE_URL:-http://localhost:3006}"
+HEALTH_URL="$BASE_URL/api/health"
 MAX_RETRIES=3
 RETRY_DELAY=5
 
@@ -515,7 +517,7 @@ main() {
     fi
     
     echo ""
-    log "📚 Documentation: http://localhost:3006/docs.html"
+    log "📚 Documentation: $BASE_URL/docs.html"
     log "🔗 Repository: https://github.com/MCERQUA/LLM-Runner-Router"
 }
 

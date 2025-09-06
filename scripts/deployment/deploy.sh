@@ -171,7 +171,8 @@ echo -e "\n${YELLOW}🔍 Running post-deployment checks...${NC}"
 sleep 5
 
 # Check health endpoint
-if curl -f http://localhost:3006/health > /dev/null 2>&1; then
+BASE_URL="${BASE_URL:-http://localhost:3006}"
+if curl -f "$BASE_URL/health" > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Server health check passed${NC}"
 else
     echo -e "${YELLOW}⚠️  Server may still be starting up${NC}"
@@ -180,9 +181,9 @@ fi
 # Display important information
 echo -e "\n${GREEN}=== Deployment Complete ===${NC}"
 echo -e "\n📝 Important Information:"
-echo -e "- Health check: http://localhost:3006/health"
-echo -e "- Chat interface: http://localhost:3006/chat"
-echo -e "- API endpoint: http://localhost:3006/api/inference"
+echo -e "- Health check: $BASE_URL/health"
+echo -e "- Chat interface: $BASE_URL/chat"
+echo -e "- API endpoint: $BASE_URL/api/inference"
 echo -e "- Logs directory: ./logs/"
 
 if [ -f .env.production ]; then

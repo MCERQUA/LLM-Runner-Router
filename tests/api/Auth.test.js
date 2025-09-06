@@ -12,11 +12,27 @@ describe('Authentication & Authorization', () => {
   let authManager;
   let authMiddleware;
 
+  beforeAll(async () => {
+    const adminHash = await bcrypt.hash('admin123', 4);
+    const userHash = await bcrypt.hash('user123', 4);
+    const apiHash = await bcrypt.hash('api123', 4);
+    process.env.DEFAULT_ADMIN_PASSWORD_HASH = adminHash;
+    process.env.DEFAULT_USER_PASSWORD_HASH = userHash;
+    process.env.DEFAULT_API_PASSWORD_HASH = apiHash;
+  });
+
+  afterAll(() => {
+    delete process.env.DEFAULT_ADMIN_PASSWORD_HASH;
+    delete process.env.DEFAULT_USER_PASSWORD_HASH;
+    delete process.env.DEFAULT_API_PASSWORD_HASH;
+  });
+
   beforeEach(async () => {
     authManager = new AuthenticationManager({
       jwtSecret: 'test-secret-key',
       jwtExpiresIn: '1h',
-      bcryptRounds: 4 // Lower for faster tests
+      bcryptRounds: 4, // Lower for faster tests
+      sessionSecret: 'test-session-secret'
     });
     
     authMiddleware = new AuthMiddleware(authManager);

@@ -1,33 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: engines/NodeNativeEngine.js</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-</head>
-
-<body>
-
-<div id="main">
-
-    <h1 class="page-title">Source: engines/NodeNativeEngine.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/**
- * Node Native Engine
+/**
+ * Node Engine
  * Optimized inference engine for Node.js with native bindings
  * Provides high-performance server-side model execution
  */
@@ -35,13 +7,12 @@
 import { EventEmitter } from 'events';
 import { Worker } from 'worker_threads';
 import { cpus } from 'os';
-import path from 'path';
 import { Logger } from '../utils/Logger.js';
 
-class NodeNativeEngine extends EventEmitter {
+class NodeEngine extends EventEmitter {
   constructor(config = {}) {
     super();
-    this.logger = new Logger('NodeNativeEngine');
+    this.logger = new Logger('NodeEngine');
     this.config = {
       threads: config.threads || cpus().length,
       useNativeBindings: config.useNativeBindings !== false,
@@ -59,6 +30,10 @@ class NodeNativeEngine extends EventEmitter {
     this.capabilities = {};
   }
 
+  async isSupported() {
+    return true;
+  }
+
   /**
    * Initialize the engine
    */
@@ -66,7 +41,7 @@ class NodeNativeEngine extends EventEmitter {
     if (this.initialized) return true;
     
     try {
-      this.logger.info('Initializing Node Native Engine');
+      this.logger.info('Initializing Node Engine');
       
       // Detect CPU capabilities
       this.capabilities = this.detectCapabilities();
@@ -82,7 +57,7 @@ class NodeNativeEngine extends EventEmitter {
       }
       
       this.initialized = true;
-      this.logger.info(`Node Native Engine initialized with ${this.config.threads} threads`);
+      this.logger.info(`Node Engine initialized with ${this.config.threads} threads`);
       
       return true;
     } catch (error) {
@@ -131,7 +106,7 @@ class NodeNativeEngine extends EventEmitter {
   async initializeWorkerPool() {
     const workerCount = Math.min(this.config.threads, cpus().length);
     
-    for (let i = 0; i &lt; workerCount; i++) {
+    for (let i = 0; i < workerCount; i++) {
       const worker = await this.createWorker(i);
       this.workers.push(worker);
     }
@@ -216,11 +191,11 @@ class NodeNativeEngine extends EventEmitter {
           // Simplified matrix multiplication
           if (!Array.isArray(a) || !Array.isArray(b)) return [];
           const result = [];
-          for (let i = 0; i &lt; a.length; i++) {
+          for (let i = 0; i < a.length; i++) {
             result[i] = [];
-            for (let j = 0; j &lt; b[0].length; j++) {
+            for (let j = 0; j < b[0].length; j++) {
               let sum = 0;
-              for (let k = 0; k &lt; b.length; k++) {
+              for (let k = 0; k < b.length; k++) {
                 sum += a[i][k] * b[k][j];
               }
               result[i][j] = sum;
@@ -427,9 +402,9 @@ class NodeNativeEngine extends EventEmitter {
     const { input, operation } = data;
     
     // Use optimized implementations based on capabilities
-    if (this.capabilities.hasAvx2 &amp;&amp; this.config.enableAvx) {
+    if (this.capabilities.hasAvx2 && this.config.enableAvx) {
       return this.computeWithAvx(input, operation);
-    } else if (this.capabilities.hasSimd &amp;&amp; this.config.enableSimd) {
+    } else if (this.capabilities.hasSimd && this.config.enableSimd) {
       return this.computeWithSimd(input, operation);
     } else {
       return this.computeBasic(input, operation);
@@ -477,11 +452,11 @@ class NodeNativeEngine extends EventEmitter {
     if (!Array.isArray(a) || !Array.isArray(b)) return [];
     
     const result = [];
-    for (let i = 0; i &lt; a.length; i++) {
+    for (let i = 0; i < a.length; i++) {
       result[i] = [];
-      for (let j = 0; j &lt; b[0].length; j++) {
+      for (let j = 0; j < b[0].length; j++) {
         let sum = 0;
-        for (let k = 0; k &lt; b.length; k++) {
+        for (let k = 0; k < b.length; k++) {
           sum += a[i][k] * b[k][j];
         }
         result[i][j] = sum;
@@ -554,7 +529,7 @@ class NodeNativeEngine extends EventEmitter {
       modelId,
       output,
       duration,
-      engine: 'node-native',
+      engine: 'node',
       threads: this.config.threads
     };
   }
@@ -564,7 +539,7 @@ class NodeNativeEngine extends EventEmitter {
    */
   getInfo() {
     return {
-      name: 'NodeNativeEngine',
+      name: 'NodeEngine',
       initialized: this.initialized,
       capabilities: this.capabilities,
       config: this.config,
@@ -577,7 +552,7 @@ class NodeNativeEngine extends EventEmitter {
    * Cleanup resources
    */
   async cleanup() {
-    this.logger.info('Cleaning up Node Native Engine');
+    this.logger.info('Cleaning up Node Engine');
     
     // Terminate all workers
     for (const worker of this.workers) {
@@ -590,28 +565,5 @@ class NodeNativeEngine extends EventEmitter {
     this.initialized = false;
   }
 }
-export default NodeNativeEngine;
-export { NodeNativeEngine };
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ABTestingManager.html">ABTestingManager</a></li><li><a href="AuditLogger.html">AuditLogger</a></li><li><a href="AuthMiddleware.html">AuthMiddleware</a></li><li><a href="BPETokenizer.html">BPETokenizer</a></li><li><a href="BaseEngine.html">BaseEngine</a></li><li><a href="BaseLoader.html">BaseLoader</a></li><li><a href="BinaryLoader.html">BinaryLoader</a></li><li><a href="BinaryModel.html">BinaryModel</a></li><li><a href="BitNetLoader.html">BitNetLoader</a></li><li><a href="ConversionConfig.html">ConversionConfig</a></li><li><a href="ConversionResult.html">ConversionResult</a></li><li><a href="EnterpriseAuthManager.html">EnterpriseAuthManager</a></li><li><a href="EnterpriseManager.html">EnterpriseManager</a></li><li><a href="EnterpriseRouter.html">EnterpriseRouter</a></li><li><a href="ErrorHandler.html">ErrorHandler</a></li><li><a href="FormatConverter.html">FormatConverter</a></li><li><a href="GGUFLoader.html">GGUFLoader</a></li><li><a href="GGUFModel.html">GGUFModel</a></li><li><a href="GRPCClient.html">GRPCClient</a></li><li><a href="LLMRouter.html">LLMRouter</a></li><li><a href="MockLoader.html">MockLoader</a></li><li><a href="MockModel.html">MockModel</a></li><li><a href="ModelError.html">ModelError</a></li><li><a href="ModelInterface.html">ModelInterface</a></li><li><a href="ModelQuantizer.html">ModelQuantizer</a></li><li><a href="ModelRegistry.html">ModelRegistry</a></li><li><a href="ModelTemplates.html">ModelTemplates</a></li><li><a href="MultiTenancyManager.html">MultiTenancyManager</a></li><li><a href="Pipeline.html">Pipeline</a></li><li><a href="PyTorchLoader.html">PyTorchLoader</a></li><li><a href="PyTorchModel.html">PyTorchModel</a></li><li><a href="QuantizationConfig.html">QuantizationConfig</a></li><li><a href="QuantizationResult.html">QuantizationResult</a></li><li><a href="Router.html">Router</a></li><li><a href="SLAMonitor.html">SLAMonitor</a></li><li><a href="SentencePieceTokenizer.html">SentencePieceTokenizer</a></li><li><a href="SimpleLoader.html">SimpleLoader</a></li><li><a href="SimpleModel.html">SimpleModel</a></li><li><a href="TokenizationResult.html">TokenizationResult</a></li><li><a href="TokenizerConfig.html">TokenizerConfig</a></li><li><a href="UniversalTokenizer.html">UniversalTokenizer</a></li><li><a href="ValidationConfig.html">ValidationConfig</a></li><li><a href="ValidationSuite.html">ValidationSuite</a></li><li><a href="ValidationSuiteResult.html">ValidationSuiteResult</a></li><li><a href="ValidationTestResult.html">ValidationTestResult</a></li><li><a href="WordPieceTokenizer.html">WordPieceTokenizer</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Architectures">Architectures</a></li><li><a href="global.html#AuditEventTypes">AuditEventTypes</a></li><li><a href="global.html#AuthMethods">AuthMethods</a></li><li><a href="global.html#BreachSeverity">BreachSeverity</a></li><li><a href="global.html#Capabilities">Capabilities</a></li><li><a href="global.html#ComplianceFrameworks">ComplianceFrameworks</a></li><li><a href="global.html#EnterpriseFeatures">EnterpriseFeatures</a></li><li><a href="global.html#ExperimentStatus">ExperimentStatus</a></li><li><a href="global.html#IsolationLevels">IsolationLevels</a></li><li><a href="global.html#ModelFormat">ModelFormat</a></li><li><a href="global.html#ModelFormats">ModelFormats</a></li><li><a href="global.html#Permissions">Permissions</a></li><li><a href="global.html#QuantizationMethod">QuantizationMethod</a></li><li><a href="global.html#QuantizationPrecision">QuantizationPrecision</a></li><li><a href="global.html#QuotaTypes">QuotaTypes</a></li><li><a href="global.html#RiskLevels">RiskLevels</a></li><li><a href="global.html#RoutingStrategies">RoutingStrategies</a></li><li><a href="global.html#SLAMetricTypes">SLAMetricTypes</a></li><li><a href="global.html#SLAStatus">SLAStatus</a></li><li><a href="global.html#SessionTypes">SessionTypes</a></li><li><a href="global.html#SplittingAlgorithms">SplittingAlgorithms</a></li><li><a href="global.html#StatisticalTests">StatisticalTests</a></li><li><a href="global.html#TimeWindows">TimeWindows</a></li><li><a href="global.html#TokenizerType">TokenizerType</a></li><li><a href="global.html#UserRoles">UserRoles</a></li><li><a href="global.html#ValidationSeverity">ValidationSeverity</a></li><li><a href="global.html#ValidationTestType">ValidationTestType</a></li><li><a href="global.html#adjustTimeouts">adjustTimeouts</a></li><li><a href="global.html#attemptRecovery">attemptRecovery</a></li><li><a href="global.html#checkConnectivity">checkConnectivity</a></li><li><a href="global.html#clearCache">clearCache</a></li><li><a href="global.html#colors">colors</a></li><li><a href="global.html#createEnterpriseExpressRoutes">createEnterpriseExpressRoutes</a></li><li><a href="global.html#createEnterpriseRouter">createEnterpriseRouter</a></li><li><a href="global.html#createEnterpriseWebSocketHandlers">createEnterpriseWebSocketHandlers</a></li><li><a href="global.html#createMissingResources">createMissingResources</a></li><li><a href="global.html#defaultEnterpriseConfig">defaultEnterpriseConfig</a></li><li><a href="global.html#emergencyShutdown">emergencyShutdown</a></li><li><a href="global.html#enterpriseVersion">enterpriseVersion</a></li><li><a href="global.html#errorMonitoringMiddleware">errorMonitoringMiddleware</a></li><li><a href="global.html#escalateError">escalateError</a></li><li><a href="global.html#executeRecovery">executeRecovery</a></li><li><a href="global.html#getEnabledFeatures">getEnabledFeatures</a></li><li><a href="global.html#getMonitoringStatus">getMonitoringStatus</a></li><li><a href="global.html#getStats">getStats</a></li><li><a href="global.html#gracefulShutdown">gracefulShutdown</a></li><li><a href="global.html#handleCriticalError">handleCriticalError</a></li><li><a href="global.html#handleMemoryLeak">handleMemoryLeak</a></li><li><a href="global.html#httpMonitoringMiddleware">httpMonitoringMiddleware</a></li><li><a href="global.html#isFeatureEnabled">isFeatureEnabled</a></li><li><a href="global.html#logError">logError</a></li><li><a href="global.html#performHealthCheck">performHealthCheck</a></li><li><a href="global.html#recordCustomMetric">recordCustomMetric</a></li><li><a href="global.html#registerAlertRule">registerAlertRule</a></li><li><a href="global.html#registerDependency">registerDependency</a></li><li><a href="global.html#registerHealthCheck">registerHealthCheck</a></li><li><a href="global.html#reinstallDependencies">reinstallDependencies</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#restartProcess">restartProcess</a></li><li><a href="global.html#retryConnection">retryConnection</a></li><li><a href="global.html#selectRecoveryStrategy">selectRecoveryStrategy</a></li><li><a href="global.html#setupHandlers">setupHandlers</a></li><li><a href="global.html#setupMonitoring">setupMonitoring</a></li><li><a href="global.html#softRestart">softRestart</a></li><li><a href="global.html#startHealthMonitoring">startHealthMonitoring</a></li><li><a href="global.html#startPerformanceProfile">startPerformanceProfile</a></li><li><a href="global.html#validateEnterpriseConfig">validateEnterpriseConfig</a></li><li><a href="global.html#withCacheMonitoring">withCacheMonitoring</a></li><li><a href="global.html#withDatabaseMonitoring">withDatabaseMonitoring</a></li><li><a href="global.html#withModelMonitoring">withModelMonitoring</a></li><li><a href="global.html#withQueueMonitoring">withQueueMonitoring</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Aug 18 2025 01:43:35 GMT+0000 (Coordinated Universal Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>
+export default NodeEngine;
+export { NodeEngine };

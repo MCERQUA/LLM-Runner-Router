@@ -349,15 +349,15 @@ serve(async (req) => {
 ### Dockerfile
 
 ```dockerfile
-# Multi-stage build for optimization
+# Multi-stage build without separate dist step
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npm prune --production
 
 # Production stage
 FROM node:20-alpine
@@ -365,8 +365,9 @@ FROM node:20-alpine
 RUN apk add --no-cache tini
 WORKDIR /app
 
-COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/server.js ./
 COPY --from=builder /app/package.json ./
 
 # Create non-root user
@@ -381,7 +382,7 @@ USER nodejs
 
 EXPOSE 3006
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "dist/server.js"]
+CMD ["node", "server.js"]
 ```
 
 ### Docker Compose

@@ -10,7 +10,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_BASE = process.env.API_BASE || 'http://localhost:3006';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3006';
 const TEST_API_KEY = 'llm_test_persistent_key_fixed_2025.TEST_SECRET_KEY_2025_PERSISTENT';
 
 console.log('🧪 BYOK System Test Suite\n');
@@ -116,7 +116,7 @@ async function testBYOKAPI() {
   // Test 1: Get supported providers
   console.log('Test 1: GET /api/byok/providers');
   try {
-    const response = await fetch(`${API_BASE}/api/byok/providers`);
+    const response = await fetch(`${BASE_URL}/api/byok/providers`);
     const data = await response.json();
     
     if (data.success) {
@@ -131,7 +131,7 @@ async function testBYOKAPI() {
   // Test 2: Get user providers (requires auth)
   console.log('\nTest 2: GET /api/byok/keys (authenticated)');
   try {
-    const response = await fetch(`${API_BASE}/api/byok/keys`, {
+    const response = await fetch(`${BASE_URL}/api/byok/keys`, {
       headers: {
         'Authorization': `Bearer ${TEST_API_KEY}`
       }
@@ -150,7 +150,7 @@ async function testBYOKAPI() {
   // Test 3: Add a mock key
   console.log('\nTest 3: POST /api/byok/keys/:provider');
   try {
-    const response = await fetch(`${API_BASE}/api/byok/keys/openai`, {
+    const response = await fetch(`${BASE_URL}/api/byok/keys/openai`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${TEST_API_KEY}`,
@@ -168,7 +168,7 @@ async function testBYOKAPI() {
       console.log(`  ✅ Added key: ${data.keyId}`);
       
       // Clean up - remove the test key
-      const deleteResponse = await fetch(`${API_BASE}/api/byok/keys/openai`, {
+      const deleteResponse = await fetch(`${BASE_URL}/api/byok/keys/openai`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${TEST_API_KEY}`

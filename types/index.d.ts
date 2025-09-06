@@ -266,7 +266,7 @@ declare module 'llm-runner-router' {
   export type EngineType = 
     | 'webgpu' 
     | 'wasm' 
-    | 'node-native' 
+    | 'node' 
     | 'worker' 
     | 'edge' 
     | 'browser'

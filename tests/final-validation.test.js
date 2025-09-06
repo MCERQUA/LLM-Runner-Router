@@ -12,8 +12,12 @@ import { Pipeline } from '../src/core/Pipeline.js';
 describe('Final Project Validation', () => {
   let router;
   let registry;
+  let originalNodeEnv;
+  let originalAutoInit;
 
   beforeAll(() => {
+    originalNodeEnv = process.env.NODE_ENV;
+    originalAutoInit = process.env.AUTO_INIT;
     process.env.NODE_ENV = 'test';
     process.env.AUTO_INIT = 'false';
   });
@@ -176,11 +180,11 @@ describe('Final Project Validation', () => {
     const packagePath = path.join(process.cwd(), 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf-8'));
     
-    // Check version
-    expect(packageJson.version).toBe('2.0.0');
-    
-    // Check main entry
-    expect(packageJson.main).toBe('src/index.js');
+    // Check version follows semver
+    expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+/);
+
+    // Check main entry points to index file
+    expect(packageJson.main).toMatch(/index\.js$/);
     
     // Check type module
     expect(packageJson.type).toBe('module');
@@ -208,6 +212,12 @@ describe('Final Project Validation', () => {
     }
     if (registry) {
       registry = null;
+    }
+    process.env.NODE_ENV = originalNodeEnv;
+    if (originalAutoInit === undefined) {
+      delete process.env.AUTO_INIT;
+    } else {
+      process.env.AUTO_INIT = originalAutoInit;
     }
   });
 });

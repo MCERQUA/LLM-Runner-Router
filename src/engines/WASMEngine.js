@@ -28,37 +28,37 @@ class WASMEngine extends BaseEngine {
 
   async initialize(options = {}) {
     if (this.initialized) return;
-    
+
     logger.info('🔧 Initializing WASM engine...');
-    
-    // Initialize memory
-    this.memory = new WebAssembly.Memory({
-      initial: options.initialMemory || 256, // pages (16MB)
-      maximum: options.maxMemory || 4096     // pages (256MB)
-    });
-    
-    // Load base inference module
-    await this.loadBaseModule();
-    
+
+    // Load base inference module which also provides memory
+    await this.loadBaseModule(options);
+
     this.initialized = true;
     logger.success('✅ WASM engine ready!');
   }
 
-  async loadBaseModule() {
-    // Simplified - real implementation would load actual WASM binary
-    const wasmCode = new Uint8Array([
-      0x00, 0x61, 0x73, 0x6d, // Magic number
-      0x01, 0x00, 0x00, 0x00  // Version
-      // ... actual WASM bytecode
-    ]);
-    
-    const module = await WebAssembly.compile(wasmCode);
-    this.wasmModule = await WebAssembly.instantiate(module, {
+  async loadBaseModule(options = {}) {
+    // Precompiled minimal WASM runtime with malloc/free/inference
+    const base64Module =
+      'AGFzbQEAAAABFANgAX8Bf2ABfwBgBn9/f399fwF/AhEBA2VudgZtZW1vcnkCAQGAAgMEAwABAgYGAX8BQQALBx0DBm1hbGxvYwAABGZyZWUAAQlpbmZlcmVuY2UAAgoiAxEBAX8jACEBIwAgAGokACABCwIACwsAIAJBKjYCAEEBCw==';
+
+    const wasmBytes = Buffer.from(base64Module, 'base64');
+
+    // Allocate memory configurable by options
+    this.memory = new WebAssembly.Memory({
+      initial: options.initialMemory || 1,
+      maximum: options.maxMemory || 256
+    });
+
+    const { instance } = await WebAssembly.instantiate(wasmBytes, {
       env: {
         memory: this.memory,
         log: (msg) => logger.debug('WASM:', msg)
       }
     });
+
+    this.wasmModule = instance;
   }
 
   async loadModel(model) {
@@ -101,8 +101,8 @@ class WASMEngine extends BaseEngine {
       options.topK || 40
     );
     
-    // Read output
-    const output = new Float32Array(this.memory.buffer, outputPtr, result);
+      // Read output tokens as integers
+      const output = new Int32Array(this.memory.buffer, outputPtr, result);
     
     // Free memory
     this.free(inputPtr);
@@ -129,7 +129,6 @@ class WASMEngine extends BaseEngine {
   async *stream(model, input, options = {}) {
     await this.initialize();
     
-    const chunkSize = options.chunkSize || 1;
     const maxTokens = options.maxTokens || 100;
     
     for (let i = 0; i < maxTokens; i++) {

@@ -15,11 +15,8 @@ COPY package*.json ./
 # Install dependencies including dev packages for build
 RUN npm ci
 
-# Copy source code
+# Copy source code (no build step required)
 COPY . .
-
-# Build the project
-RUN npm run build
 
 # Remove development dependencies to slim runtime image
 RUN npm prune --production

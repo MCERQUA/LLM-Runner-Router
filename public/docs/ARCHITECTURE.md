@@ -50,7 +50,7 @@ LLM-Runner-Router/
 │   ├── engines/                 # Inference engines
 │   │   ├── WebGPUEngine.js      # GPU acceleration in browser
 │   │   ├── WASMEngine.js        # CPU fallback
-│   │   ├── NodeNativeEngine.js  # Node.js optimized
+│   │   ├── NodeEngine.js  # Node.js optimized
 │   │   ├── WorkerEngine.js      # Web/Service Worker execution
 │   │   └── EdgeEngine.js        # Edge runtime optimized
 │   ├── runtime/                 # Runtime management
@@ -263,7 +263,7 @@ const response = await LLMRouter.advanced({
 ### ✅ All Features Implemented (v2.0.0)
 - ✅ **Core Architecture** - Router, Registry, Pipeline, Error Handling
 - ✅ **All Model Loaders** - GGUF, ONNX, Safetensors, HuggingFace, PyTorch, TensorFlow.js, BitNet, Binary, Simple, Mock
-- ✅ **All Engines** - WebGPU, WASM, NodeNative, Worker, Edge, Selector
+- ✅ **All Engines** - WebGPU, WASM, Node, Worker, Edge, Selector
 - ✅ **Complete Routing** - Quality-first, cost-optimized, speed-priority, balanced, fallback, ensemble
 - ✅ **Full Platform Support** - Node.js, Browser, Deno, Workers, Edge functions
 

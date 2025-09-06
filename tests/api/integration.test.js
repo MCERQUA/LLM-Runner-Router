@@ -12,6 +12,7 @@ import { RateLimitManager } from '../../src/api/RateLimiter.js';
 import { OpenAPIManager } from '../../src/api/OpenAPI.js';
 import { APIGateway } from '../../src/api/Gateway.js';
 import { LLMRouter } from '../../src/index.js';
+import bcrypt from 'bcrypt';
 
 describe('API Integration', () => {
   let app;
@@ -26,6 +27,13 @@ describe('API Integration', () => {
   let testApiKey;
 
   beforeAll(async () => {
+    const adminHash = await bcrypt.hash('admin123', 4);
+    const userHash = await bcrypt.hash('user123', 4);
+    const apiHash = await bcrypt.hash('api123', 4);
+    process.env.DEFAULT_ADMIN_PASSWORD_HASH = adminHash;
+    process.env.DEFAULT_USER_PASSWORD_HASH = userHash;
+    process.env.DEFAULT_API_PASSWORD_HASH = apiHash;
+
     // Initialize core components
     router = new LLMRouter({ autoInit: false });
     await router.initialize();
@@ -34,7 +42,8 @@ describe('API Integration', () => {
     authManager = new AuthenticationManager({
       jwtSecret: 'test-integration-secret',
       jwtExpiresIn: '1h',
-      bcryptRounds: 4
+      bcryptRounds: 4,
+      sessionSecret: 'test-session-secret'
     });
     authMiddleware = new AuthMiddleware(authManager);
 
@@ -101,6 +110,9 @@ describe('API Integration', () => {
     if (router) {
       await router.cleanup();
     }
+    delete process.env.DEFAULT_ADMIN_PASSWORD_HASH;
+    delete process.env.DEFAULT_USER_PASSWORD_HASH;
+    delete process.env.DEFAULT_API_PASSWORD_HASH;
   });
 
   function setupIntegratedRoutes() {

@@ -50,7 +50,7 @@ LLM-Runner-Router/
 │   ├── engines/                 # Inference engines
 │   │   ├── WebGPUEngine.js      # GPU acceleration in browser
 │   │   ├── WASMEngine.js        # CPU fallback
-│   │   ├── NodeNativeEngine.js  # Node.js optimized
+│   │   ├── NodeEngine.js  # Node.js optimized
 │   │   ├── WorkerEngine.js      # Web/Service Worker execution
 │   │   └── EdgeEngine.js        # Edge runtime optimized
 │   ├── runtime/                 # Runtime management
@@ -323,7 +323,7 @@ const response = await LLMRouter.advanced({
 - ✅ **All major format loaders complete** - GGUF, ONNX, Safetensors, HF, TFJS, PyTorch, Binary, BitNet
 
 #### All Engines Implemented
-- ✅ **Node Native Engine** (`src/engines/NodeNativeEngine.js`) - Optimized Node.js bindings with native addons
+- ✅ **Node Engine** (`src/engines/NodeEngine.js`) - Optimized Node.js bindings with native addons
 - ✅ **Worker Engine** (`src/engines/WorkerEngine.js`) - Web/Service Worker execution with message passing
 - ✅ **Edge Engine** (`src/engines/EdgeEngine.js`) - Cloudflare Workers/Deno optimization with KV storage
 
@@ -380,7 +380,7 @@ const response = await LLMRouter.advanced({
 #### ✅ Completed (What's Done)
 - **Core Systems**: 100% complete (Router, Registry, Pipeline, Error Handler)
 - **Model Loaders**: 100% complete (10/10 - GGUF, ONNX, Safetensors, HF, TFJS, PyTorch, Binary, BitNet, Simple, Mock)
-- **Engines**: 100% complete (6/6 - WebGPU, WASM, Node Native, Worker, Edge, Engine Selector)
+- **Engines**: 100% complete (6/6 - WebGPU, WASM, Node, Worker, Edge, Engine Selector)
 - **Runtime Features**: 100% complete (Memory Manager, Cache Manager, Stream Processor, Thread Pool)
 - **Core API**: 100% complete (REST, WebSocket, GraphQL)
 - **Testing Infrastructure**: 100% complete (Jest setup, unit tests, integration tests, E2E tests)

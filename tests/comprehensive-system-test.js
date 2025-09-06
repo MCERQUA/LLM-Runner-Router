@@ -117,7 +117,7 @@ async function testEngines() {
   console.log('\n⚙️ Testing Engines...\n');
   
   const engines = [
-    'WebGPUEngine', 'WASMEngine', 'NodeNativeEngine',
+    'WebGPUEngine', 'WASMEngine', 'NodeEngine',
     'WorkerEngine', 'EdgeEngine', 'EngineSelector'
   ];
   

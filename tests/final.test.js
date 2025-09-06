@@ -8,12 +8,17 @@ import { describe, it, expect } from '@jest/globals';
 describe('Final Test Suite - Core Functionality', () => {
   
   describe('Basic Functionality', () => {
-    it('should pass basic test', () => {
-      expect(1 + 1).toBe(2);
-    });
-    
     it('should verify environment', () => {
       expect(process.env.NODE_ENV).toBe('test');
+    });
+
+    it('initializes EngineSelector in test mode', async () => {
+      const { EngineSelector } = await import('../src/engines/EngineSelector.js');
+      EngineSelector.engines.clear();
+      EngineSelector.initialized = false;
+      await EngineSelector.initialize();
+      const available = EngineSelector.getAvailable();
+      expect(available.length).toBeGreaterThan(0);
     });
   });
   

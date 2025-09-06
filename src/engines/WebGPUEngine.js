@@ -62,9 +62,9 @@ class WebGPUEngine extends BaseEngine {
 
   async execute(model, input, options = {}) {
     await this.initialize();
-    
-    // Create compute pipeline
-    const pipeline = await this.createPipeline(model);
+
+    // Create compute pipeline and keep reference for bind groups
+    this.pipeline = await this.createPipeline(model);
     
     // Prepare buffers
     const inputBuffer = this.createBuffer(input);
@@ -74,7 +74,7 @@ class WebGPUEngine extends BaseEngine {
     const commandEncoder = this.device.createCommandEncoder();
     const passEncoder = commandEncoder.beginComputePass();
     
-    passEncoder.setPipeline(pipeline);
+    passEncoder.setPipeline(this.pipeline);
     passEncoder.setBindGroup(0, this.createBindGroup(inputBuffer, outputBuffer));
     passEncoder.dispatchWorkgroups(
       Math.ceil(input.length / 64)
@@ -85,8 +85,12 @@ class WebGPUEngine extends BaseEngine {
     this.device.queue.submit([commandEncoder.finish()]);
     await this.device.queue.onSubmittedWorkDone();
     
-    // Read results
-    return this.readBuffer(outputBuffer);
+    // Read results and cleanup
+    const result = await this.readBuffer(outputBuffer);
+    inputBuffer.destroy();
+    outputBuffer.destroy();
+    this.pipeline = null;
+    return result;
   }
 
   createPipeline(model) {
@@ -106,7 +110,7 @@ class WebGPUEngine extends BaseEngine {
 
   createBuffer(data, size) {
     const buffer = this.device.createBuffer({
-      size: size || data.byteLength,
+      size: size ?? data.byteLength,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
     });
     
@@ -159,10 +163,13 @@ class WebGPUEngine extends BaseEngine {
 
   async cleanup() {
     if (this.device) {
-      this.device.destroy();
+      if (typeof this.device.destroy === 'function') {
+        this.device.destroy();
+      }
     }
     this.device = null;
     this.adapter = null;
+    this.pipeline = null;
     await super.cleanup();
   }
 }

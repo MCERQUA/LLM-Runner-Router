@@ -5,6 +5,8 @@
 
 set -e
 
+BASE_URL="${BASE_URL:-http://localhost:3006}"
+
 echo "🧠 Loading environment and running LLM Router functional tests..."
 
 # Load API key from .env.test file (for testing)
@@ -22,7 +24,7 @@ fi
 # Set the API key for the functional tests
 export ROUTER_API_KEY="$API_KEY"
 
-echo "🚀 Starting functional tests against local server (http://localhost:3006)"
+echo "🚀 Starting functional tests against server (${BASE_URL})"
 echo "🔑 Using API key: ${API_KEY:0:20}..."
 echo ""
 

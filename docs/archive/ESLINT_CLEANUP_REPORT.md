@@ -25,7 +25,7 @@
 9. **src/monitoring/Alerting.js:9** - Removed `import path from 'path';` (unused)
 
 #### 🔄 REMAINING HIGH PRIORITY:
-10. **src/engines/NodeNativeEngine.js:10** - `import path from 'path';` (check usage)
+10. **src/engines/NodeEngine.js:10** - `import path from 'path';` (check usage)
 11. **src/runtime/MemoryManager.js:9** - `import { performance } from 'perf_hooks';` (performance unused)
 12. **src/runtime/StreamProcessor.js:10** - `import { performance } from 'perf_hooks';` (performance unused)
 13. **src/runtime/ThreadPool.js:7** - Multiple worker thread imports (check usage)

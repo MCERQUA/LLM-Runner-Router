@@ -527,7 +527,7 @@ if (!wasmSupported) {
 await router.preloadWASMModules();
 ```
 
-### Node Native Engine Errors
+### Node Engine Errors
 
 #### LLM_NODE_001_E - Native Binding Failed
 **Cause**: Native Node.js bindings failed to load

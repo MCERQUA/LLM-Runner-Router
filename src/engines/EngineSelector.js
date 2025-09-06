@@ -19,7 +19,25 @@ class EngineSelector {
     
     // In test environment, use simplified loading
     if (process.env.NODE_ENV === 'test') {
-      // Just register WASM engine for testing
+      // Register WebGPU if available for tests
+      try {
+        if (typeof navigator !== 'undefined' && navigator.gpu) {
+          const WebGPUEngine = (await import('./WebGPUEngine.js')).default;
+          const instance = new WebGPUEngine();
+          if (await instance.isSupported()) {
+            this.engines.set('webgpu', {
+              instance,
+              priority: 100,
+              supported: true
+            });
+            logger.success('✅ WebGPU engine available (test mode)');
+          }
+        }
+      } catch (error) {
+        logger.debug('❌ WebGPU not available in test');
+      }
+
+      // Always try WASM engine as fallback
       try {
         const WASMEngine = (await import('./WASMEngine.js')).default;
         const instance = new WASMEngine();
@@ -39,18 +57,22 @@ class EngineSelector {
     // Register all engines with priority
     const engines = [
       { name: 'webgpu', module: './WebGPUEngine.js', priority: 100 },
-      { name: 'node', module: './NodeEngine.js', priority: 90 },
+      { name: 'node', module: './NodeNativeEngine.js', priority: 90 },
       { name: 'wasm', module: './WASMEngine.js', priority: 80 },
       { name: 'worker', module: './WorkerEngine.js', priority: 70 },
-      { name: 'edge', module: './EdgeEngine.js', priority: 60 }
+      { name: 'edge', module: './EdgeEngine.js', priority: 10 }
     ];
     
     for (const engine of engines) {
       try {
         const { default: Engine } = await import(engine.module);
         const instance = new Engine();
-        
-        if (await instance.isSupported()) {
+
+        const supported = typeof instance.isSupported === 'function'
+          ? await instance.isSupported()
+          : true;
+
+        if (supported) {
           this.engines.set(engine.name, {
             instance,
             priority: engine.priority,
@@ -68,20 +90,18 @@ class EngineSelector {
 
   static async getBest(config = {}) {
     await this.initialize();
-    
-    // Filter by requirements
-    const available = Array.from(this.engines.entries())
-      .filter(([_, eng]) => eng.supported)
-      .sort((a, b) => b[1].priority - a[1].priority);
-    
-    if (available.length === 0) {
-      throw new Error('No engines available!');
+
+    const preferredOrder = ['webgpu', 'node', 'wasm', 'worker', 'edge'];
+
+    for (const name of preferredOrder) {
+      const eng = this.engines.get(name);
+      if (eng?.supported) {
+        logger.info(`🎯 Selected engine: ${name}`);
+        return eng.instance;
+      }
     }
-    
-    // Return highest priority engine
-    const [name, engine] = available[0];
-    logger.info(`🎯 Selected engine: ${name}`);
-    return engine.instance;
+
+    throw new Error('No engines available!');
   }
 
   static async getByName(name) {

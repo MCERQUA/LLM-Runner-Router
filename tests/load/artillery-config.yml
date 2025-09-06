@@ -1,5 +1,5 @@
 config:
-  target: 'http://localhost:3006'
+  target: "{{ $processEnvironment.BASE_URL || 'http://localhost:3006' }}"
   phases:
     # Warm-up phase
     - duration: 60
@@ -31,7 +31,7 @@ config:
   processor: './artillery-processor.js'
   environments:
     development:
-      target: 'http://localhost:3006'
+      target: "{{ $processEnvironment.BASE_URL || 'http://localhost:3006' }}"
     staging:
       target: 'https://staging.llm-router.com'
     production:

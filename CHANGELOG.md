@@ -98,7 +98,7 @@ This release marks the completion of ALL core systems with 15+ major features ad
   - Browser and Node.js compatibility
 
 #### Complete Engine Suite (3 new)
-- **Node Native Engine** (`src/engines/NodeNativeEngine.js`)
+- **Node Engine** (`src/engines/NodeEngine.js`)
   - Optimized for Node.js environment
   - Native addon support
   - Child process isolation

@@ -114,7 +114,8 @@ validate_update() {
     sleep 10
     
     # Health check
-    if curl -f -s http://localhost:3006/api/health > /dev/null 2>&1; then
+    BASE_URL="${BASE_URL:-http://localhost:3006}"
+    if curl -f -s "$BASE_URL/api/health" > /dev/null 2>&1; then
         success "Server startup test passed"
         kill $SERVER_PID 2>/dev/null || true
         return 0

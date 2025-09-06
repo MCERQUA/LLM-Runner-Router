@@ -8,6 +8,8 @@ import { OpenAPIManager } from '../../src/api/OpenAPI.js';
 import express from 'express';
 import request from 'supertest';
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3006';
+
 describe('OpenAPI System', () => {
   let openAPIManager;
   let app;
@@ -16,7 +18,7 @@ describe('OpenAPI System', () => {
     openAPIManager = new OpenAPIManager({
       title: 'Test LLM Router API',
       version: '1.0.0-test',
-      serverUrl: 'http://localhost:3006'
+      serverUrl: BASE_URL
     });
 
     app = express();
@@ -470,7 +472,7 @@ describe('OpenAPI System', () => {
       
       const devServer = servers.find(s => s.description === 'Development server');
       expect(devServer).toBeDefined();
-      expect(devServer.url).toBe('http://localhost:3006');
+      expect(devServer.url).toBe(BASE_URL);
     });
   });
 

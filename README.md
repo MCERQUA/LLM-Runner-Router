@@ -101,6 +101,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for production setup.
 - **BYOK System**: Complete with web interface and encryption
 - **Streaming**: StreamProcessor with async token generation
 - **Runtime Features**: Memory Manager, Cache Manager, Thread Pool
+- **WASM Engine**: Universal WebAssembly runtime for broad compatibility
 
 #### ⚠️ Partially Implemented
 - **Cloud Providers**: Basic configs exist but need full integration:
@@ -176,8 +177,9 @@ Perfect for developers building AI applications, researchers comparing models, a
 
 ### ⚡ Multi-Engine Runtime Architecture
 - **Node.js Engine**: ✅ High-performance server-side inference
-- **WebGPU Engine**: ❌ Planned but not yet implemented
-- **WASM Engine**: ❌ Planned but not yet implemented
+- **Edge Engine**: ✅ Cloudflare Workers, Deno Deploy, Vercel Edge
+- **WASM Engine**: ✅ WebAssembly fallback for universal deployment
+- **WebGPU Engine**: ✅ Hardware-accelerated browser inference
 - **Edge Computing**: ❌ No specific optimizations implemented yet
 
 ### 🧭 Intelligent Model Routing Strategies
@@ -799,7 +801,7 @@ const scores = await router.rankModelsByQuality(models, prompt);
 
 - **Browser**: Full client-side inference with WebGPU
 - **Node.js**: Server-side with native bindings
-- **Edge**: Cloudflare Workers, Deno Deploy
+- **Edge**: Cloudflare Workers, Deno Deploy, Vercel Edge
 - **Docker**: Container-ready out of the box
 - **Kubernetes**: Scale to infinity and beyond
 
@@ -847,7 +849,7 @@ MIT License - Because sharing is caring, and AI should be for everyone.
 - [ ] GraphQL API endpoint
 - [ ] gRPC interface for high-performance RPC
 - [ ] TensorFlow.js loader
-- [ ] Node Native Engine optimizations
+- [ ] Node Engine optimizations
 - [ ] Kubernetes deployment configs
 - [ ] OpenTelemetry monitoring integration
 

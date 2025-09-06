@@ -20,6 +20,8 @@ ufw status verbose
 echo ""
 echo "🔧 Configuring firewall rules..."
 
+BASE_URL="${BASE_URL:-http://localhost:3006}"
+
 # Enable UFW if not already enabled
 if ! ufw status | grep -q "Status: active"; then
     echo "⚠️  UFW is not active. Enabling UFW..."
@@ -59,7 +61,7 @@ echo "🔍 Testing accessibility..."
 
 # Test local connectivity
 echo -n "  Local API (3006): "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:3006/api/health | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/health" | grep -q "200"; then
     echo "✅ Working"
 else
     echo "❌ Not responding"

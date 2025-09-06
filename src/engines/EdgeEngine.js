@@ -5,6 +5,7 @@
  */
 
 import { Logger } from '../utils/Logger.js';
+/* global KV, DurableObject, fastly, CF, Deno */
 
 class EdgeEngine {
   constructor(config = {}) {
@@ -59,6 +60,13 @@ class EdgeEngine {
     }
     
     return 'unknown';
+  }
+
+  /**
+   * Check if the current environment is an edge platform
+   */
+  async isSupported() {
+    return this.config.platform !== 'unknown';
   }
 
   /**

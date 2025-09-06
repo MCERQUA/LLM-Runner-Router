@@ -24,7 +24,7 @@
 ```
 BaseEngine (Abstract)
 ├── CPUEngine
-│   ├── NodeNativeEngine
+│   ├── NodeEngine
 │   ├── WASMEngine
 │   └── WorkerEngine
 ├── GPUEngine

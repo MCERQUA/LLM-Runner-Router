@@ -70,7 +70,7 @@ async function runTests() {
   // Test engines
   console.log('\n⚙️ Engines (6 types):');
   const engines = [
-    'WebGPUEngine', 'WASMEngine', 'NodeNativeEngine',
+    'WebGPUEngine', 'WASMEngine', 'NodeEngine',
     'WorkerEngine', 'EdgeEngine', 'EngineSelector'
   ];
   

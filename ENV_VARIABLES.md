@@ -11,7 +11,7 @@ Complete guide to all environment variables used in the LLM Runner Router projec
 | `NODE_ENV` | `production` | Environment mode (production/development/test) | No |
 | `SERVER_MODE` | `production` | Server mode (production/secure/resilient/development) | No |
 | `HOST` | `0.0.0.0` | Server host binding | No |
-| `BASE_URL` | `https://llmrouter.dev:3006` | Base URL for the application | No |
+| `BASE_URL` | `http://localhost:3006` (development), `https://llmrouter.dev:3006` (production) | Base URL for the application | No |
 
 ### Model Configuration
 | Variable | Default | Description | Required |

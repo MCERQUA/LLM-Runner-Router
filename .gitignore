@@ -156,6 +156,7 @@ CLAUDE.md
 api-keys.json
 api-keys.txt
 *-api-keys.json
+temp_api_key.txt
 
 # Environment files (all variants)
 .env.vps

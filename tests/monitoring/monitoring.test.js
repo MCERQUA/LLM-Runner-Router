@@ -17,16 +17,9 @@ import middleware from '../../src/monitoring/middleware.js';
 describe('Monitoring System', () => {
   let originalEnv;
 
-  beforeAll(() => {
+  beforeEach(async () => {
     originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'test';
-  });
-
-  afterAll(() => {
-    process.env.NODE_ENV = originalEnv;
-  });
-
-  beforeEach(async () => {
     // Reset monitoring system state
     if (monitoringSystem.isRunning) {
       await monitoringSystem.stop();
@@ -38,6 +31,7 @@ describe('Monitoring System', () => {
     if (monitoringSystem.isRunning) {
       await monitoringSystem.stop();
     }
+    process.env.NODE_ENV = originalEnv;
   });
 
   describe('MonitoringSystem Core', () => {

@@ -14,8 +14,9 @@ pm2 save
 
 # Test localhost binding
 sleep 3
-if curl -s http://127.0.0.1:3006/api/health > /dev/null; then
-    echo "✅ Service running on localhost:3006"
+BASE_URL="${BASE_URL:-http://localhost:3006}"
+if curl -s "$BASE_URL/api/health" > /dev/null; then
+    echo "✅ Service running on ${BASE_URL}"
 else
     echo "❌ Service not responding on localhost"
     exit 1
